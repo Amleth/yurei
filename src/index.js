@@ -1,9 +1,7 @@
 import 'babel-polyfill';
 import configYaml from 'config-yaml';
 import http from 'http';
-import path from 'path';
-import phantomjs from 'phantomjs-prebuilt';
-import child_process from 'child_process';
+import Nightmare from 'nightmare';
 import node_url from 'url';
 import v from 'validator';
 
@@ -11,14 +9,12 @@ const config = configYaml(`${__dirname}/../config.yml`);
 
 http.createServer((req, res) => {
   if (req.method !== 'GET') {
-    res.statusCode = 400;
-    res.end();
+    res.writeHead(405, {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'});
+    res.end(JSON.stringify({
+      errorMessages: 'Bad method'
+    }));
   }
   else {
-    res.writeHead(200, {
-      'Content-Type': 'text/plain',
-      'Access-Control-Allow-Origin': '*'
-    });
     const params = node_url.parse(req.url, true).query;
     let {clip, height, url, urn, width} = params;
 
@@ -60,35 +56,24 @@ http.createServer((req, res) => {
     const [parametersOk, badParametersErrorMessages] = checkParams();
 
     if (!parametersOk) {
-      res.writeHead(400, {'Content-Type': 'application/json'});
+      res.writeHead(400, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'});
       res.end(JSON.stringify({
         errorMessages: badParametersErrorMessages
       }));
       return;
     }
 
-    const childArgs = [
-      path.join(__dirname, 'phantomjs-script.js'),
-      config['encoding'],
-      url,
-      clip,
-      width,
-      height
-    ];
+    const nightmare = new Nightmare({show: true});
 
-    const child = child_process.spawn(phantomjs.path, childArgs);
-
-    child.stdout.on('data', (data) => {
-      res.writeHead(200, {'Content-Type': 'image/png'});
-      res.end(data, 'binary');
-    });
-
-    child.stderr.on('data', (data) => {
-      console.log('stderr: ' + data);
-    });
-
-    child.on('close', (code) => {
-      console.log('child process exited with code ' + code);
-    });
+    nightmare
+    .goto(url)
+    .wait(500)
+    .screenshot()
+    .run((err, nightmare) => {
+        if (err) return console.log(err);
+        res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'image/png'});
+        res.end(nightmare, 'binary');
+      }
+    );
   }
 }).listen(config['port']);
