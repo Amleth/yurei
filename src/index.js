@@ -34,6 +34,9 @@ http.createServer((req, res) => {
         ok = false;
         errorMessages.push(`'height' parameter must be an int between 1 and 1920`);
       }
+      else {
+        height = parseInt(height);
+      }
 
       if (url == undefined || !v.isURL(url)) {
         ok = false;
@@ -49,6 +52,9 @@ http.createServer((req, res) => {
         ok = false;
         errorMessages.push(`'width' parameter must be an int between 1 and 1920`);
       }
+      else {
+        width = parseInt(width);
+      }
 
       return [ok, errorMessages];
     };
@@ -63,17 +69,19 @@ http.createServer((req, res) => {
       return;
     }
 
-    const nightmare = new Nightmare({show: true});
+    const nightmare = new Nightmare();
 
-    nightmare
-    .goto(url)
-    .wait(500)
+    nightmare.goto(url)
+    .viewport(width, height)
+    .wait(100)
     .screenshot()
-    .run((err, nightmare) => {
-        if (err) return console.log(err);
-        res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'image/png'});
-        res.end(nightmare, 'binary');
-      }
-    );
+    .end()
+    .then(function (data) {
+      res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'image/png'});
+      res.end(data, 'binary');
+    })
+    .catch((err) => {
+      console.log(`ERROR: ${err} - ${url}`);
+    });
   }
 }).listen(config['port']);
