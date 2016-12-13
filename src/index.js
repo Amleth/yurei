@@ -1,7 +1,7 @@
 import 'babel-polyfill';
 import configYaml from 'config-yaml';
 import http from 'http';
-import Nightmare from 'nightmare';
+import ss from 'screenshot-stream';
 import node_url from 'url';
 import v from 'validator';
 
@@ -69,19 +69,8 @@ http.createServer((req, res) => {
       return;
     }
 
-    const nightmare = new Nightmare();
-
-    nightmare.goto(url)
-    .viewport(width, height)
-    .wait(100)
-    .screenshot()
-    .end()
-    .then(function (data) {
-      res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'image/png'});
-      res.end(data, 'binary');
-    })
-    .catch((err) => {
-      console.log(`ERROR: ${err} - ${url}`);
-    });
+    res.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'image/png'});
+    const stream = ss(url, `${width}x${height}`, {crop: clip});
+    stream.pipe(res);
   }
 }).listen(config['port']);

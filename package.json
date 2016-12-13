@@ -12,8 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "config-yaml": "^1.0.4",
-    "electron": "^1.4.12",
-    "nightmare": "^2.8.1",
+    "screenshot-stream": "^4.1.0",
     "validator": "^6.2.0"
   },
   "devDependencies": {
