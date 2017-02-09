@@ -12,13 +12,13 @@
   "license": "ISC",
   "dependencies": {
     "config-yaml": "^1.0.4",
-    "screenshot-stream": "^4.1.0",
-    "validator": "^6.2.0"
+    "screenshot-stream": "git://github.com/Amleth/screenshot-stream.git#master",
+    "validator": "^6.2.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.18.0",
-    "babel-plugin-transform-async-to-generator": "^6.16.0",
-    "babel-polyfill": "^6.20.0",
-    "babel-preset-latest": "^6.16.0"
+    "babel-cli": "^6.22.2",
+    "babel-plugin-transform-async-to-generator": "^6.22.0",
+    "babel-polyfill": "^6.22.0",
+    "babel-preset-latest": "^6.22.0"
   }
 }
